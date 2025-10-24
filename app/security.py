@@ -7,19 +7,23 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 import os
-from . import database, models, schemas
+from . import database, models, schemas, repository
 
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ALGORITHM =  os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 if not SECRET_KEY:
-    raise ValueError("SECRET_KEY is not set in environment variables")
+  raise ValueError("SECRET_KEY is not set in environment variables")
+if not ALGORITHM:
+  raise ValueError("ALGORITHM is not set in environment variables")
+if not ACCESS_TOKEN_EXPIRE_MINUTES:
+  raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES is not set in environment variables")
 
-# --- 1. Hashing de Contraseñas --- #
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# --- 1. Password Hashing --- #
+pwd_context = CryptContext(schemes=[os.getenv("PWD_CONTEXT_SCHEMES")], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
@@ -27,7 +31,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-# --- 2. Creación y Verificación de JWT --- #
+# --- 2. Creation and Verification of JWT --- #
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
   to_encode = data.copy()
   if expires_delta:
@@ -41,7 +45,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
   return encoded_jwt
 
 
-# --- 3. Dependencia de FastAPI para Seguridad --- #
+# --- 3. FastAPI dependency for security --- #
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)) -> models.User:
@@ -60,7 +64,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
   except JWTError:
     raise credentials_exception
 
-  user = db.query(models.User).filter(models.User.email == token_data.email).first()
+  user = repository.get_user_by_email(db, email=token_data.email)
   if user is None:
     raise credentials_exception
 
