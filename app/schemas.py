@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
-from sqlalchemy import DateTime
+from pydantic import BaseModel, Field, ConfigDict
+from datetime import datetime
+
 
 class UserBase(BaseModel):
   nombre: str = Field(..., max_length=20)
@@ -11,11 +12,10 @@ class UserCreate(UserBase):
 
 class User(UserBase):
   id: int
-  created_at: DateTime
+  created_at: datetime
   TrackedFlights: list['TrackedFlight'] = []
 
-  class Config:
-    orm_mode = True
+  model_config = ConfigDict(from_attributes=True)
 
 class TrackedFlightBase(BaseModel):
   flight_number: str = Field(..., max_length=20)
@@ -26,10 +26,9 @@ class TrackedFlightCreate(TrackedFlightBase):
 class TrackedFlight(TrackedFlightBase):
   id: int
   user_id: int
-  timestamp: DateTime
+  timestamp: datetime
 
-  class Config:
-    orm_mode = True
+  model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
   access_token: str
