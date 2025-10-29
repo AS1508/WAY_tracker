@@ -26,3 +26,12 @@ def delete_user_account(
 ):
   services.delete_user_account(db, current_user)
   return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.post("/track-flight", response_model=schemas.TrackedFlight, status_code=status.HTTP_201_CREATED)
+def track_a_flight(
+  flight: schemas.TrackedFlightCreate,
+  current_user: models.User = Depends(security.get_current_user),
+  db: Session = Depends(database.get_db)
+):
+  return services.track_flight_for_user(
+    db=db, user=current_user, flight_to_track=flight)

@@ -9,7 +9,7 @@ def register_new_user(db: Session, user: schemas.UserCreate) -> models.User:
   if db_user:
     raise HTTPException(
         status_code=status.HTTP_409_CONFLICT,
-        detail="El email ya está registrado"
+        detail="The email is already registered"
     )
 
   hashed_password = security.get_password_hash(user.password)
@@ -44,7 +44,7 @@ def login_user(db: Session, form_data: schemas.OAuth2PasswordRequestForm) -> sch
   if not user:
     raise HTTPException(
       status_code=status.HTTP_401_UNAUTHORIZED,
-      detail="Correo o contraseña incorrectos",
+      detail="Invalid email or password",
       headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -73,4 +73,27 @@ def delete_user_account(db: Session, user_model: models.User):
   repository.delete_user_db(db=db, user=user_model)
 
 # --- Flight Services --- #
-# (to be added later)
+def track_flight_for_user(
+  db: Session,
+  user_model: models.User,
+  flight_data: schemas.FlightTrackRequest
+) -> models.TrackedFlight:
+
+  existing_flight = repository.get_flight_by_user_and_identifier(
+    db=db,
+    user_id=user_model.id,
+    flight_identifier=flight_data.flight_identifier
+  )
+
+  if existing_flight:
+    raise HTTPException(
+      status_code=status.HTTP_409_CONFLICT,
+      detail="The flight is already being tracked for this user"
+    )
+
+  flight_model = models.TrackedFlight(
+    user_id=user_model.id,
+    flight_identifier=flight_data.flight_identifier,
+  )
+
+  return repository.save_tracked_flight(db=db, flight_model=flight_model)

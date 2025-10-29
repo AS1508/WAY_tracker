@@ -23,4 +23,21 @@ def delete_user_db(db: Session, user: models.User):
 
 
 # --- Flight Functions ---
-# (to be added later)
+def get_flight_by_user_and_identifier(
+  db: Session,
+  user_id: int,
+  flight_identifier: str
+) -> models.Flight | None:
+  return db.query(models.Flight).filter(
+    models.Flight.user_id == user_id,
+    models.Flight.flight_identifier == flight_identifier
+  ).first()
+
+def save_tracked_flight(
+  db: Session,
+  flight_model: models.TrackedFlight
+) -> models.TrackedFlight:
+  db.add(flight_model)
+  db.commit()
+  db.refresh(flight_model)
+  return flight_model
