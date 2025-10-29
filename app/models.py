@@ -19,7 +19,7 @@ class TrackedFlight(Base):
 
   id = Column(Integer, primary_key=True, index=True)
   user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-  flight_number = Column(String(20), nullable=False, index=True)
-  timestamp = Column(DateTime, server_default=func.now())
+  flight_identifier = Column(String(20), nullable=False, index=True)
+  tracked_at = Column(DateTime, server_default=func.now())
 
   owner = relationship('User', back_populates='tracked_flights')

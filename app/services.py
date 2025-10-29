@@ -56,5 +56,21 @@ def login_user(db: Session, form_data: schemas.OAuth2PasswordRequestForm) -> sch
   )
   return {"access_token": access_token, "token_type": "bearer"}
 
+def update_user_profile(
+  db: Session,
+  user_model: models.User,
+  user_update_data: schemas.UserUpdate
+) -> models.User:
+
+  update_data = user_update_data.model_dump(exclude_unset=True)
+  
+  for key, values in update_data.items():
+    setattr(user_model, key, values)
+  
+  return repository.update_user_db(db=db, user=user_model)
+
+def delete_user_account(db: Session, user_model: models.User):
+  repository.delete_user_db(db=db, user=user_model)
+
 # --- Flight Services --- #
 # (to be added later)
