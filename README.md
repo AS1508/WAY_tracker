@@ -70,8 +70,8 @@ Sigue estos pasos para correr el proyecto en tu máquina local.
 Bash
 
 ```
-git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
-cd TU_REPOSITORIO
+git clone https://github.com/AS1508/WAY_tracker
+cd WAY_tracker
 ```
 
 ### 3. Configurar el Entorno
@@ -121,7 +121,7 @@ URL="postgresql://TU_USUARIO_POSTGRES:TU_CONTRASEÑA@localhost:5432/way_tracker_
 SECRET_KEY="TU_LLAVE_SECRETA_SUPER_LARGA_Y_ALEATORIA"
 ALGORITHM="HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES=30
-PWD_CONTEXT_SCHEMES="bcrypt" # (La dejaste como variable de entorno)
+PWD_CONTEXT_SCHEMES="bcrypt"
 
 # API Externa
 AVIATIONSTACK_API_KEY="TU_API_KEY_DE_AVIATIONSTACK"
